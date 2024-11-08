@@ -6,10 +6,25 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      id:3,
       value: '',
-      todoItem:[ ]
+      todoItem:[ {
+        id:2,
+        text:'',
+        checked:false
+
+      }]
     }
+  }
+
+  componentDidMount(){
+    const initTodoItem = [
+      {id:0,text:"자바스크립트 공부하기",checked:false},
+      {id:1,text:"리액트 공부하기",checked:false},
+      {id:2,text:"다이어리 작성하기",checked:false}
+    ];
+
+    this.setState({todoItem:initTodoItem})
+
   }
 
   // 입력값이 변화하였을 때
@@ -27,9 +42,7 @@ class App extends Component {
 
   // 입력버튼을 눌렀을 시
   handleAddTodo = () => {    
-    let checklength = 0;
-    checklength = this.state.todoItem.filter((todo)=>(todo.text === this.state.value)).length;
-    if(checklength>=1){
+    if(this.state.todoItem.filter((todo)=>(todo.text === this.state.value)).length===1){
       this.setState({
         value:''
       })
@@ -40,7 +53,7 @@ class App extends Component {
       this.setState({
         id:this.state.id+1,
         value: '',
-        todoItem: [...this.state.todoItem, { id:this.state.id ,text: this.state.value, checked: false }],
+        todoItem: [...this.state.todoItem, { id:this.state.todoItem[this.state.todoItem.length-1].id+1 ,text: this.state.value, checked: false }],
       });
     }
     else {
@@ -90,16 +103,7 @@ class App extends Component {
     this.setState({todoItem:newTodoItem});
   }
 
-  componentDidMount(){
-    const initTodoItem = [
-      {id:0,text:"자바스크립트 공부하기",checked:false},
-      {id:1,text:"리액트 공부하기",checked:false},
-      {id:2,text:"다이어리 작성하기",checked:false}
-    ];
 
-    this.setState({todoItem:initTodoItem})
-
-  }
 
   render() {
     return (
