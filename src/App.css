@@ -77,7 +77,11 @@ input{
       margin-right: 10px;
   }
 
-  .todolist-header{
+  TodoHeader{
     display: flex;
     justify-content: space-between;
+  }
+
+  .check-control{
+    display:flex;
   }

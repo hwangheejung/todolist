@@ -1,29 +1,33 @@
 import React, { Component } from 'react';
 import TodoList from './component/TodoList';
+import {Map,List, fromJS} from 'immutable';
 import './App.css';
+import TodoHeader from './component/TodoHeader';
 
 class App extends Component {
+  //생성자
   constructor(props) {
     super(props);
     this.state = {
       value: '',
-      todoItem:[ {
+      todoItem:fromJS([
+        {
         id:2,
         text:'',
-        checked:false
-
-      }]
+        checked:false,
+        isEditing:false
+      }])
     }
   }
 
+  //Mount
   componentDidMount(){
-    const initTodoItem = [
-      {id:0,text:"자바스크립트 공부하기",checked:false},
-      {id:1,text:"리액트 공부하기",checked:false},
-      {id:2,text:"다이어리 작성하기",checked:false}
-    ];
-
-    this.setState({todoItem:initTodoItem})
+    let initTodoItem = List([
+      Map({id:0,text:"자바스크립트 공부하기",checked:false, isEditing:false}),
+      Map({id:1,text:"리액트 공부하기",checked:false, isEditing:false}),
+      Map({id:2,text:"다이어리 작성하기",checked:false, isEditing:false})
+    ]);
+    this.setState({todoItem: initTodoItem})
 
   }
 
@@ -42,21 +46,20 @@ class App extends Component {
 
   // 입력버튼을 눌렀을 시
   handleAddTodo = () => {    
-    if(this.state.todoItem.filter((todo)=>(todo.text === this.state.value)).length===1){
-      this.setState({
+   if(!this.state.todoItem.filter((todo)=>(todo.get('text') === this.state.value)).isEmpty()){ //중복 검사
+      this.setState({ 
         value:''
       })
       alert('이미 존재합니다.다시 입력해 주세요')
     }
     else{
-    if (this.state.value !== '') {
+    if (this.state.value !== '') { 
       this.setState({
-        id:this.state.id+1,
         value: '',
-        todoItem: [...this.state.todoItem, { id:this.state.todoItem[this.state.todoItem.length-1].id+1 ,text: this.state.value, checked: false }],
+        todoItem: this.state.todoItem.push(Map({ id:this.id+1 ,text: this.state.value, checked: false, isEditing:false })),
       });
     }
-    else {
+    else { //입력값이 존재하지 않으면
       alert('할일을 입력해주세요');
     }
   }
@@ -64,11 +67,9 @@ class App extends Component {
 
   //업데이트 시 값이 변경되었을 때 
   handleUpdateChange = (e, index) => {
-    const newTodoItem = [...this.state.todoItem];
-    newTodoItem[index].text = e.target.value;
+    const newTodoItem= this.state.todoItem.setIn([index,'text'],e.target.value);
     this.setState({ todoItem: newTodoItem });
   };
-
 
 
   // 삭제버튼을 눌렀을 때
@@ -79,28 +80,30 @@ class App extends Component {
 
   //   checkbox 선택했을 때
   handleCheckBox = (index) => {
-    const newTodoItem = [...this.state.todoItem];
-    newTodoItem[index].checked = !newTodoItem[index].checked;
+    const checkedVar = this.state.todoItem.get(index).get('checked');
+    const newTodoItem= this.state.todoItem.setIn([index,'checked'],!checkedVar);
     this.setState({ todoItem: newTodoItem });
   };
+
 
   //수정버튼을 눌렀을 때 
   handleUpdateBtn = (index) => {
-    const newTodoItem = [...this.state.todoItem];
-    newTodoItem[index].isEditing = !newTodoItem[index].isEditing;
+    const isEditing = this.state.todoItem.get(index).get('isEditing');
+    const newTodoItem= this.state.todoItem.setIn([index,'isEditing'],!isEditing);
     this.setState({ todoItem: newTodoItem });
   };
 
+
+  //전체 체크 버튼을 눌렀을 때
   handleAllCheck = ()=>{
-      const newTodoItem = [...this.state.todoItem];
-      newTodoItem.map((_,index)=>newTodoItem[index].checked=true);
+      const newTodoItem= this.state.todoItem.map((todo)=>todo.set('checked',true));
       this.setState({todoItem:newTodoItem});
   }
 
+  //전체 체크 해제 버튼을 눌렀을 때 
   handleAllUnCheck=()=>{
-    const newTodoItem = [...this.state.todoItem];
-    newTodoItem.map((_,index)=>newTodoItem[index].checked=false);
-    this.setState({todoItem:newTodoItem});
+    const newTodoItem= this.state.todoItem.map((todo)=>todo.set('checked',false));
+      this.setState({todoItem:newTodoItem});
   }
 
 
@@ -110,17 +113,11 @@ class App extends Component {
       <div className="App">
         <h1 className="header">TodoList</h1>
         <div className="todolist-wrapper">
-          <div className='todolist-header'>
-
-          <div className="check-control">
-            <button onClick={this.handleAllCheck}>전체 체크</button>
-            <button onClick={this.handleAllUnCheck}>전체 체크 해제</button>
-          </div>
-          <div className='imcomplete-todoItem'>남은 할일 개수 :
-            {this.state.todoItem.filter(element => !element.checked).length}</div>
-          </div>
+          <TodoHeader
+            todoItem={this.state.todoItem}
+            handleAllCheck={this.handleAllCheck}
+            handleAllUnCheck={this.handleAllUnCheck}/>
           <div className='inputText'>
-
             {/* 입력창 */}
             <input
               type="text"
@@ -138,7 +135,6 @@ class App extends Component {
             handleUpdateChange={this.handleUpdateChange}
             handleUpdateBtn={this.handleUpdateBtn}
             handleDeleteTodo={this.handleDeleteTodo}
-
           />
         </div>
 

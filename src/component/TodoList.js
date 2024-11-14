@@ -11,7 +11,7 @@ class TodoList extends Component {
                 <div className="todolist">
                     {todoItem.map((todo, index) => (
                         <TodoItem
-                            key={todoItem[index].id}
+                            key={todoItem.getIn([index,'id'])}
                             todoItem={todoItem}
                             todo={todo} index={index}
                             handleCheckBox={handleCheckBox}
